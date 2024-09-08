@@ -15,16 +15,16 @@ require("yaml")
 
 # parametros experimento
 PARAM <- list()
-PARAM$experimento <- 3610
+PARAM$experimento <- 3620
 
 # parametros rpart
 
 #  cargue aqui los hiperparametros elegidos
 PARAM$rpart <- data.table( 
   "cp" = -1,
-  "minsplit" = 1000,
-  "minbucket" = 500,
-  "maxdepth" = 8
+  "minsplit" = 30,
+  "minbucket" = 5,
+  "maxdepth" = 6
 )
 
 # parametros  arbol
@@ -36,7 +36,7 @@ PARAM$feature_fraction <- 0.5
 # voy a generar 512 arboles,
 #  a mas arboles mas tiempo de proceso y MEJOR MODELO,
 #  pero ganancias marginales
-PARAM$num_trees_max <- 512
+PARAM$num_trees_max <- 1000 #aca despues volver a 512
 
 #------------------------------------------------------------------------------
 #------------------------------------------------------------------------------
@@ -62,7 +62,7 @@ setwd(carpeta_experimento)
 
 
 # que tamanos de ensemble grabo a disco
-grabar <- c(1, 2, 4, 8, 16, 32, 64, 128, 256, 512)
+grabar <- c(128, 256, 512, 1028) #aca borre de 1 a 32
 
 
 # defino los dataset de entrenamiento y aplicacion
