@@ -36,7 +36,7 @@ PARAM$feature_fraction <- 0.5
 # voy a generar 512 arboles,
 #  a mas arboles mas tiempo de proceso y MEJOR MODELO,
 #  pero ganancias marginales
-PARAM$num_trees_max <- 1000 #aca despues volver a 512
+PARAM$num_trees_max <- 1028
 
 #------------------------------------------------------------------------------
 #------------------------------------------------------------------------------
@@ -62,7 +62,7 @@ setwd(carpeta_experimento)
 
 
 # que tamanos de ensemble grabo a disco
-grabar <- c(128, 256, 512, 1028) #aca borre de 1 a 32
+grabar <- c(700, 900, 1028) 
 
 
 # defino los dataset de entrenamiento y aplicacion
