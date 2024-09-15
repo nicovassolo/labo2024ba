@@ -17,14 +17,18 @@ PARAM$input$training <- c(202107) # meses donde se entrena el modelo
 PARAM$input$future <- c(202109) # meses donde se aplica el modelo
 
 
-PARAM$finalmodel$num_iterations <- 146
-PARAM$finalmodel$max_depth <- 9 #### se lo agregue yo
-PARAM$finalmodel$learning_rate <- 0.025
-PARAM$finalmodel$feature_fraction <- 0.9
-PARAM$finalmodel$min_data_in_leaf <- 562
-PARAM$finalmodel$num_leaves <- 2315
-
+PARAM$finalmodel$num_iterations <- 262
+PARAM$finalmodel$learning_rate <- 0.023       # dentro de [0.001, 0.03]
+PARAM$finalmodel$num_leaves <- 819         # dentro de [20, 3000]
+PARAM$finalmodel$feature_fraction <- 0.812   # dentro de [0.7, 1]
+PARAM$finalmodel$min_data_in_leaf <- 185    # dentro de [100, 2000]
 PARAM$finalmodel$max_bin <- 31
+PARAM$finalmodel$max_depth <- 8         # dentro de [3, 15]
+PARAM$finalmodel$lambda_l1 <- 0.293           # dentro de [0, 5]
+PARAM$finalmodel$lambda_l2 <- 1.184            # dentro de [0, 5]
+PARAM$finalmodel$bagging_fraction <- 0.967     # dentro de [0.5, 1]
+PARAM$finalmodel$bagging_freq <- 3           # dentro de [1, 10]
+
 
 #------------------------------------------------------------------------------
 # graba a un archivo los componentes de lista
@@ -114,11 +118,15 @@ modelo <- lgb.train(
     objective = "binary",
     max_bin = PARAM$finalmodel$max_bin,
     learning_rate = PARAM$finalmodel$learning_rate,
-    max_depth = PARAM$finalmodel$max_depth,###### se lo agregue yo
     num_iterations = PARAM$finalmodel$num_iterations,
     num_leaves = PARAM$finalmodel$num_leaves,
     min_data_in_leaf = PARAM$finalmodel$min_data_in_leaf,
     feature_fraction = PARAM$finalmodel$feature_fraction,
+    max_depth = PARAM$finalmodel$max_depth,
+    lambda_l1 = PARAM$finalmodel$lambda_l1,
+    lambda_l2 = PARAM$finalmodel$lambda_l2,
+    bagging_fraction = PARAM$finalmodel$bagging_fraction,
+    bagging_freq = PARAM$finalmodel$bagging_freq,
     seed = miAmbiente$semilla_primigenia
   )
 )
@@ -166,7 +174,7 @@ setorder(tb_entrega, -prob)
 # genero archivos con los  "envios" mejores
 # suba TODOS los archivos a Kaggle
 
-cortes <- seq(300, 800, by = 50) #### aca le cambio los envios
+cortes <- seq(1800, 2600, by = 100) #### aca le cambio los envios
 for (envios in cortes) {
   tb_entrega[, Predicted := 0L]
   tb_entrega[1:envios, Predicted := 1L]

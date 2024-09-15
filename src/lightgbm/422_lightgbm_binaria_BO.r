@@ -33,7 +33,7 @@ options(error = function() {
 #  muy pronto esto se leera desde un archivo formato .yaml
 PARAM <- list()
 
-PARAM$experimento <- "HT4220"
+PARAM$experimento <- "HT4221"
 
 PARAM$input$training <- c(202107) # los meses en los que vamos a entrenar
 
@@ -50,12 +50,16 @@ PARAM$hyperparametertuning$NEG_ganancia <- -3000
 
 # Aqui se cargan los bordes de los hiperparametros
 hs <- makeParamSet(
-  makeNumericParam("learning_rate", lower = 0.01, upper = 0.03),
-  makeIntegerParam("max_depth", lower = 4L, upper = 12L),
+  makeNumericParam("learning_rate", lower = 0.001, upper = 0.03),
   makeIntegerParam("num_leaves", lower = 20L, upper = 3000L), # parece que lo mejor es 2 elevado a la max depth
-  makeNumericParam("feature_fraction", lower = 0.5, upper = 1),
+  makeNumericParam("feature_fraction", lower = 0.6, upper = 1),
   makeIntegerParam("min_data_in_leaf", lower = 100L, upper = 2000L),
-  makeIntegerParam("envios", lower = 1000L, upper = 5000L)
+  makeIntegerParam("envios", lower = 300L, upper = 3000L),
+  makeIntegerParam("max_depth", lower = 3L, upper = 15L),  # max_depth entre 3 y 15 es común para LightGBM
+  makeNumericParam("lambda_l1", lower = 0, upper = 5),  # Regularización L1
+  makeNumericParam("lambda_l2", lower = 0, upper = 5),  # Regularización L2
+  makeNumericParam("bagging_fraction", lower = 0.5, upper = 1),  # Controla la fracción de datos usados en cada iteración
+  makeIntegerParam("bagging_freq", lower = 1L, upper = 10L)  # Cada cuántas iteraciones aplicar el bagging_fraction
 )
 
 #------------------------------------------------------------------------------
