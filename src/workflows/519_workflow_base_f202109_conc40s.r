@@ -75,7 +75,7 @@ DT_incorporar_dataset_competencia2024 <- function()
   param_local$periodo <- c("foto_mes" )
   param_local$clase <- c("clase_ternaria" )
 
-  param_local$semilla <- NULL  # no usa semilla, es deterministico.
+  param_local$semilla <- NULL  # no usa semilla, es deterministico
 
   return( exp_correr_script( param_local ) ) # linea fija}
 }
@@ -273,21 +273,17 @@ TS_strategy_base9 <- function( pinputexps )
   param_local$final_train$undersampling <- 1.0
   param_local$final_train$clase_minoritaria <- c( "BAJA+1", "BAJA+2")
   param_local$final_train$training <- c(202107, 202106, 202105, 202104, 202103, 202102,
-    202101, 202012, 202011, 202010, 202009, 202008, 202007, 202004, 202003,
-    202002, 202001, 201912, 201911, 
-    201910, 201909, 201908, 201907, 201906, 201905)
+    202101, 202012, 202011)
 
 
   param_local$train$training <- c(202105, 202104, 202103, 202102, 202101,
-    202012, 202011, 202010, 202009, 202008, 202007,
-    202004, 202003, 202002, 202001, 201912, 201911, 201910, 201909, 
-    201908, 201907, 201906, 201905, 201904, 201903)
+    202012, 202011, 202010, 202009)
   param_local$train$validation <- c(202106)
   param_local$train$testing <- c(202107)
 
   # Atencion  0.2  de  undersampling de la clase mayoritaria,  los CONTINUA
   # 1.0 significa NO undersampling
-  param_local$train$undersampling <- 0.4
+  param_local$train$undersampling <- 0.2
   param_local$train$clase_minoritaria <- c( "BAJA+1", "BAJA+2")
 
   return( exp_correr_script( param_local ) ) # linea fija
@@ -441,7 +437,7 @@ wf_septiembre <- function( pnombrewf )
   ts9 <- TS_strategy_base9()
   ht <- HT_tuning_base()
 
-  fm <- FM_final_models_lightgbm( c(ht, ts9), ranks=c(1), qsemillas=20 )
+  fm <- FM_final_models_lightgbm( c(ht, ts9), ranks=c(1), qsemillas=40 )
   SC_scoring( c(fm, ts9) )
   KA_evaluate_kaggle()
 
