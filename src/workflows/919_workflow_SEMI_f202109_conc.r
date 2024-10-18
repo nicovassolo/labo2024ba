@@ -150,16 +150,16 @@ FEhist_base <- function( pinputexps)
   param_local$Tendencias1$tendencia <- TRUE
   param_local$Tendencias1$minimo <- TRUE
   param_local$Tendencias1$maximo <- TRUE
-  param_local$Tendencias1$promedio <- TRUE
-  param_local$Tendencias1$ratioavg <- TRUE
-  param_local$Tendencias1$ratiomax <- TRUE
+  param_local$Tendencias1$promedio <- FALSE
+  param_local$Tendencias1$ratioavg <- FALSE
+  param_local$Tendencias1$ratiomax <- FALSE
 
   # no me engraso las manos con las tendencias de segundo orden
-  param_local$Tendencias2$run <- FALSE
+  param_local$Tendencias2$run <- TRUE
   param_local$Tendencias2$ventana <- 12
-  param_local$Tendencias2$tendencia <- FALSE
-  param_local$Tendencias2$minimo <- FALSE
-  param_local$Tendencias2$maximo <- FALSE
+  param_local$Tendencias2$tendencia <- TRUE
+  param_local$Tendencias2$minimo <- TRUE
+  param_local$Tendencias2$maximo <- TRUE
   param_local$Tendencias2$promedio <- FALSE
   param_local$Tendencias2$ratioavg <- FALSE
   param_local$Tendencias2$ratiomax <- FALSE
@@ -182,13 +182,13 @@ FErf_attributes_base <- function( pinputexps, ratio, desvio)
 
   # Parametros de un LightGBM que se genera para estimar la column importance
   param_local$train$clase01_valor1 <- c( "BAJA+2", "BAJA+1")
-  param_local$train$training <- c( 202103, 202104, 202105)
+  param_local$train$training <- c( 202101, 202102, 202103, 202104, 202105)
 
   # parametros para que LightGBM se comporte como Random Forest
   param_local$lgb_param <- list(
     # parametros que se pueden cambiar
     num_iterations = 50,
-    num_leaves  = 6,
+    num_leaves  = 4,
     min_data_in_leaf = 1000,
     feature_fraction_bynode  = 0.2,
 
@@ -241,9 +241,9 @@ CN_canaritos_asesinos_base <- function( pinputexps, ratio, desvio)
   # Parametros de un LightGBM que se genera para estimar la column importance
   param_local$train$clase01_valor1 <- c( "BAJA+2", "BAJA+1")
   param_local$train$positivos <- c( "BAJA+2")
-  param_local$train$training <- c( 202101, 202102, 202103)
+  param_local$train$training <- c( 202101, 202102, 202103, 202104)
   param_local$train$validation <- c( 202105 )
-  param_local$train$undersampling <- 0.1
+  param_local$train$undersampling <- 0.2
   param_local$train$gan1 <- 117000
   param_local$train$gan0 <-  -3000
 
@@ -273,36 +273,28 @@ TS_strategy_base9 <- function( pinputexps )
   param_local$final_train$clase_minoritaria <- c( "BAJA+1", "BAJA+2")
   param_local$final_train$training <- c(
     202107, 202106, 202105, 202104, 202103, 202102, 202101, 
-    202012, 202011, 202010, 202009, 202008, 202007, 
-    # 202006  Excluyo por variables rotas
+    202012, 202011, 202010, 202009, 202008, 202007, 202006,
     202005, 202004, 202003, 202002, 202001,
-    201912, 201911,
-    # 201910 Excluyo por variables rotas
-    201909, 201908, 201907, 201906,
-    # 201905  Excluyo por variables rotas
-    201904, 201903
+    201912, 201911, 201910,
+    201909, 201908
   )
 
 
   param_local$train$training <- c(
-    202105, 202104, 202103, 202102, 202101, 
-    202012, 202011, 202010, 202009, 202008, 202007,
-    # 202006  Excluyo por variables rotas
+    202105, 202103, 202102, 202101, 
+    202012, 202011, 202010, 202009, 202008, 202007, 202006,
     202005, 202004, 202003, 202002, 202001,
-    201912, 201911,
-    # 201910 Excluyo por variables rotas
-    201909, 201908, 201907, 201906,
-    # 201905  Excluyo por variables rotas
-    201904, 201903, 201902, 201901
+    201912, 201911, 201910,
+    201909, 201908, 201907, 201906, 201905
     )
 
-  param_local$train$validation <- c(202106)
+  param_local$train$validation <- c(202106, 202104)
   param_local$train$testing <- c(202107)
 
 
   # Atencion  0.2  de  undersampling de la clase mayoritaria,  los CONTINUA
   # 1.0 significa NO undersamplin
-  param_local$train$undersampling <- 0.2
+  param_local$train$undersampling <- 0.4
   param_local$train$clase_minoritaria <- c( "BAJA+1", "BAJA+2")
 
   return( exp_correr_script( param_local ) ) # linea fija
@@ -348,10 +340,8 @@ HT_tuning_semillerio <- function( pinputexps, semillerio, bo_iteraciones, bypass
     max_depth = -1L, # -1 significa no limitar,  por ahora lo dejo fijo
     min_gain_to_split = 0.0, # min_gain_to_split >= 0.0
     min_sum_hessian_in_leaf = 0.001, #  min_sum_hessian_in_leaf >= 0.0
-    lambda_l1 = 0.0, # lambda_l1 >= 0.0
-    lambda_l2 = 0.0, # lambda_l2 >= 0.0
     max_bin = 31L, # lo debo dejar fijo, no participa de la BO
-    early_stopping = 0,  # No se hace early stopping
+    num_iterations = 9999, # un numero muy grande, lo limita early_stopping_rounds
 
     bagging_fraction = 1.0, # 0.0 < bagging_fraction <= 1.0
     pos_bagging_fraction = 1.0, # 0.0 < pos_bagging_fraction <= 1.0
@@ -365,17 +355,18 @@ HT_tuning_semillerio <- function( pinputexps, semillerio, bo_iteraciones, bypass
 
     extra_trees = FALSE,
     # Parte variable
-    learning_rate = c( 0.2, 1.2 ),
-    feature_fraction = c( 0.01, 0.9 ),
-
-    num_iterations_log = c(2, 8),  # directo a num_iterations 2^ 
-    leaf_size_log = c( -11, -5),   # deriva en min_data_in_leaf
-    coverage_log = c( -4, 0 )      # deriva en num_leaves
+    learning_rate = c( 0.02, 0.3 ), 
+    feature_fraction = c( 0.05, 0.99), 
+    num_leaves = c( 8L, 8196L,  "integer" ), 
+    min_data_in_leaf = c( 5L, 50000L, "integer" ), 
+    lambda_l1 = c(1.0, 1000.0),
+    lambda_l2 = c(1.0, 1000.0),
+    max_delta_step = c(1.0, 10.0)
   )
 
 
   # una Bayesian humilde
-  param_local$bo_iteraciones <- bo_iteraciones # iteraciones de la Optimizacion Bayesiana
+  param_local$bo_iteraciones <- 300 # iteraciones de la Optimizacion Bayesiana
 
   return( exp_correr_script( param_local ) ) # linea fija
 }
@@ -455,12 +446,12 @@ wf_SEMI_sep <- function( pnombrewf )
   param_local <- exp_wf_init( pnombrewf ) # linea fija
 
   DT_incorporar_dataset_competencia2024()
-  CA_catastrophe_base( metodo="MachineLearning")
+  CA_catastrophe_base( metodo="MICE")
   FEintra_manual_base()
   DR_drifting_base(metodo="rank_cero_fijo")
   FEhist_base()
   FErf_attributes_base()
-  #CN_canaritos_asesinos_base(ratio=0.2, desvio=4.0)
+  CN_canaritos_asesinos_base(ratio=0.95, desvio=2.35)
 
   ts9 <- TS_strategy_base9()
 
