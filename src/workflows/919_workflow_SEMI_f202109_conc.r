@@ -188,7 +188,7 @@ FErf_attributes_base <- function( pinputexps, ratio, desvio)
   param_local$lgb_param <- list(
     # parametros que se pueden cambiar
     num_iterations = 50,
-    num_leaves  = 4,
+    num_leaves  = 8,
     min_data_in_leaf = 1000,
     feature_fraction_bynode  = 0.2,
 
@@ -457,8 +457,8 @@ wf_SEMI_sep <- function( pnombrewf )
 
   # la Bayesian Optimization con el semillerio dentro
   ht <- HT_tuning_semillerio(
-    semillerio = 20, # semillerio dentro de la Bayesian Optim
-    bo_iteraciones = 30  # iteraciones inteligentes
+    semillerio = 30, # semillerio dentro de la Bayesian Optim
+    bo_iteraciones = 40  # iteraciones inteligentes
   )
 
   fm <- FM_final_models_lightgbm_semillerio( 
