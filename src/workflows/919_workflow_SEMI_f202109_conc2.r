@@ -142,7 +142,7 @@ FEhist_base <- function( pinputexps)
 
   param_local$lag1 <- TRUE
   param_local$lag2 <- TRUE # no me engraso con los lags de orden 2
-  param_local$lag3 <- FALSE # no me engraso con los lags de orden 3
+  param_local$lag3 <- TRUE # no me engraso con los lags de orden 3
 
   # no me engraso las manos con las tendencias
   param_local$Tendencias1$run <- TRUE  # FALSE, no corre nada de lo que sigue
@@ -158,8 +158,8 @@ FEhist_base <- function( pinputexps)
   param_local$Tendencias2$run <- TRUE
   param_local$Tendencias2$ventana <- 12
   param_local$Tendencias2$tendencia <- TRUE
-  param_local$Tendencias2$minimo <- FALSE
-  param_local$Tendencias2$maximo <- FALSE
+  param_local$Tendencias2$minimo <- TRUE
+  param_local$Tendencias2$maximo <- TRUE
   param_local$Tendencias2$promedio <- FALSE
   param_local$Tendencias2$ratioavg <- FALSE
   param_local$Tendencias2$ratiomax <- FALSE
@@ -187,8 +187,8 @@ FErf_attributes_base <- function( pinputexps, ratio, desvio)
   # parametros para que LightGBM se comporte como Random Forest
   param_local$lgb_param <- list(
     # parametros que se pueden cambiar
-    num_iterations = 30,
-    num_leaves  = 8,
+    num_iterations = 70,
+    num_leaves  = 4,
     min_data_in_leaf = 1000,
     feature_fraction_bynode  = 0.2,
 
@@ -274,7 +274,7 @@ TS_strategy_base9 <- function( pinputexps )
   param_local$final_train$training <- c(
     202107, 202106, 202105, 202104, 202103, 202102, 202101, 
     202012, 202011, 202010, 202009, 202008, 202007, 202006,
-    202005, 202004, 202003, 202002, 202001,
+    202005, 202004, 202002, 202001,
     201912, 201911, 201910,
     201909, 201908
   )
@@ -283,7 +283,7 @@ TS_strategy_base9 <- function( pinputexps )
   param_local$train$training <- c(
     202105, 202103, 202102, 202101, 
     202012, 202011, 202010, 202009, 202008, 202007, 202006,
-    202005, 202004, 202003, 202002, 202001,
+    202005, 202004, 202002, 202001,
     201912, 201911, 201910,
     201909, 201908, 201907, 201906, 201905
     )
@@ -458,14 +458,14 @@ wf_SEMI_sep <- function( pnombrewf )
 
   # la Bayesian Optimization con el semillerio dentro
   ht <- HT_tuning_semillerio(
-    semillerio = 30, # semillerio dentro de la Bayesian Optim
-    bo_iteraciones = 40  # iteraciones inteligentes
+    semillerio = 50, # semillerio dentro de la Bayesian Optim
+    bo_iteraciones = 50  # iteraciones inteligentes
   )
 
   fm <- FM_final_models_lightgbm_semillerio( 
     c(ht, ts9), # los inputs
     ranks = c(1), # 1 = el mejor de la bayesian optimization
-    semillerio = 30,   # cantidad de semillas finales
+    semillerio = 60,   # cantidad de semillas finales
     repeticiones_exp = 1 )
   
   SC_scoring_semillerio( c(fm, ts9) )

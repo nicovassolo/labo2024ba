@@ -1,0 +1,4 @@
+modalidad: conceptual
+dataset_pequeno: ~/datasets/conceptual_dataset_pequeno.csv
+dataset_competencia: ~/datasets/conceptual_competencia_2024.csv.gz
+semilla_primigenia: 342821

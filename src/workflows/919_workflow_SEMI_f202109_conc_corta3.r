@@ -158,8 +158,8 @@ FEhist_base <- function( pinputexps)
   param_local$Tendencias2$run <- TRUE
   param_local$Tendencias2$ventana <- 12
   param_local$Tendencias2$tendencia <- TRUE
-  param_local$Tendencias2$minimo <- FALSE
-  param_local$Tendencias2$maximo <- FALSE
+  param_local$Tendencias2$minimo <- TRUE
+  param_local$Tendencias2$maximo <- TRUE
   param_local$Tendencias2$promedio <- FALSE
   param_local$Tendencias2$ratioavg <- FALSE
   param_local$Tendencias2$ratiomax <- FALSE
@@ -187,7 +187,7 @@ FErf_attributes_base <- function( pinputexps, ratio, desvio)
   # parametros para que LightGBM se comporte como Random Forest
   param_local$lgb_param <- list(
     # parametros que se pueden cambiar
-    num_iterations = 30,
+    num_iterations = 70,
     num_leaves  = 8,
     min_data_in_leaf = 1000,
     feature_fraction_bynode  = 0.2,
@@ -276,16 +276,16 @@ TS_strategy_base9 <- function( pinputexps )
     202012, 202011, 202010, 202009, 202008, 202007, 202006,
     202005, 202004, 202003, 202002, 202001,
     201912, 201911, 201910,
-    201909, 201908
+    201909
   )
 
 
   param_local$train$training <- c(
     202105, 202103, 202102, 202101, 
-    202012, 202011, 202010, 202009, 202008, 202007, 202006,
+    202012, 202011, 202010, 202009, 202008, 202007, 202006
     202005, 202004, 202003, 202002, 202001,
     201912, 201911, 201910,
-    201909, 201908, 201907, 201906, 201905
+    201909, 201908, 201907, 201906
     )
 
   param_local$train$validation <- c(202106, 202104)
@@ -294,7 +294,7 @@ TS_strategy_base9 <- function( pinputexps )
 
   # Atencion  0.2  de  undersampling de la clase mayoritaria,  los CONTINUA
   # 1.0 significa NO undersamplin
-  param_local$train$undersampling <- 0.3
+  param_local$train$undersampling <- 0.2
   param_local$train$clase_minoritaria <- c( "BAJA+1", "BAJA+2")
 
   return( exp_correr_script( param_local ) ) # linea fija
@@ -308,13 +308,13 @@ TS_strategy_base9 <- function( pinputexps )
 HT_tuning_semillerio <- function( pinputexps, semillerio, bo_iteraciones, bypass=FALSE)
 {
   if( -1 == (param_local <- exp_init(pbypass=bypass))$resultado ) return( 0 ) # linea fija bypass
-  
+
   param_local$meta$script <- "/src/wf-etapas/z2213_HT_lightgbm_SEMI.r"
-  
-  
+
+
   # En caso que se haga cross validation, se usa esta cantidad de folds
   param_local$lgb_crossvalidation_folds <- 5
-  
+
   param_local$train$clase01_valor1 <- c( "BAJA+2", "BAJA+1")
   param_local$train$positivos <- c( "BAJA+2")
   param_local$train$gan1 <- 117000
@@ -323,11 +323,11 @@ HT_tuning_semillerio <- function( pinputexps, semillerio, bo_iteraciones, bypass
   param_local$train$repeticiones_exp <- 1
   param_local$train$semillerio <- semillerio  # 1 es no usar semillerio en la Bayesian Optim
   param_local$train$timeout <- 20000
-  
+
   # Hiperparametros  del LightGBM
   #  los que tienen un solo valor son los que van fijos
   #  los que tienen un vector,  son los que participan de la Bayesian Optimization
-  
+
   param_local$lgb_param <- list(
     boosting = "gbdt", # puede ir  dart  , ni pruebe random_forest
     objective = "binary",
@@ -344,31 +344,31 @@ HT_tuning_semillerio <- function( pinputexps, semillerio, bo_iteraciones, bypass
     lambda_l2 = 0.0, # lambda_l2 >= 0.0
     max_bin = 31L, # lo debo dejar fijo, no participa de la BO
     early_stopping = 0,  # No se hace early stopping
-    
+
     bagging_fraction = 1.0, # 0.0 < bagging_fraction <= 1.0
     pos_bagging_fraction = 1.0, # 0.0 < pos_bagging_fraction <= 1.0
     neg_bagging_fraction = 1.0, # 0.0 < neg_bagging_fraction <= 1.0
     is_unbalance = FALSE, #
     scale_pos_weight = 1.0, # scale_pos_weight > 0.0
-    
+
     drop_rate = 0.1, # 0.0 < neg_bagging_fraction <= 1.0
     max_drop = 50, # <=0 means no limit
     skip_drop = 0.5, # 0.0 <= skip_drop <= 1.0
-    
+
     extra_trees = FALSE,
     # Parte variable
-    learning_rate = c( 0.2, 1.2 ),
-    feature_fraction = c( 0.01, 0.9 ),
-    
+    learning_rate = c( 0.02, 1 ),
+    feature_fraction = c( 0.05, 0.9 ),
+
     num_iterations_log = c(2, 8),  # directo a num_iterations 2^ 
     leaf_size_log = c( -11, -5),   # deriva en min_data_in_leaf
     coverage_log = c( -4, 0 )      # deriva en num_leaves
   )
-  
-  
+
+
   # una Bayesian humilde
   param_local$bo_iteraciones <- bo_iteraciones # iteraciones de la Optimizacion Bayesiana
-  
+
   return( exp_correr_script( param_local ) ) # linea fija
 }
 #------------------------------------------------------------------------------
@@ -447,7 +447,7 @@ wf_SEMI_sep <- function( pnombrewf )
   param_local <- exp_wf_init( pnombrewf ) # linea fija
 
   DT_incorporar_dataset_competencia2024()
-  CA_catastrophe_base( metodo="MICE")
+  CA_catastrophe_base( metodo="Ninguno")
   FEintra_manual_base()
   DR_drifting_base(metodo="rank_cero_fijo")
   FEhist_base()
@@ -458,8 +458,8 @@ wf_SEMI_sep <- function( pnombrewf )
 
   # la Bayesian Optimization con el semillerio dentro
   ht <- HT_tuning_semillerio(
-    semillerio = 30, # semillerio dentro de la Bayesian Optim
-    bo_iteraciones = 40  # iteraciones inteligentes
+    semillerio = 20, # semillerio dentro de la Bayesian Optim
+    bo_iteraciones = 30  # iteraciones inteligentes
   )
 
   fm <- FM_final_models_lightgbm_semillerio( 

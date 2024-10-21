@@ -158,8 +158,8 @@ FEhist_base <- function( pinputexps)
   param_local$Tendencias2$run <- TRUE
   param_local$Tendencias2$ventana <- 12
   param_local$Tendencias2$tendencia <- TRUE
-  param_local$Tendencias2$minimo <- FALSE
-  param_local$Tendencias2$maximo <- FALSE
+  param_local$Tendencias2$minimo <- TRUE
+  param_local$Tendencias2$maximo <- TRUE
   param_local$Tendencias2$promedio <- FALSE
   param_local$Tendencias2$ratioavg <- FALSE
   param_local$Tendencias2$ratiomax <- FALSE
@@ -187,8 +187,8 @@ FErf_attributes_base <- function( pinputexps, ratio, desvio)
   # parametros para que LightGBM se comporte como Random Forest
   param_local$lgb_param <- list(
     # parametros que se pueden cambiar
-    num_iterations = 30,
-    num_leaves  = 8,
+    num_iterations = 70,
+    num_leaves  = 4,
     min_data_in_leaf = 1000,
     feature_fraction_bynode  = 0.2,
 
@@ -241,7 +241,7 @@ CN_canaritos_asesinos_base <- function( pinputexps, ratio, desvio)
   # Parametros de un LightGBM que se genera para estimar la column importance
   param_local$train$clase01_valor1 <- c( "BAJA+2", "BAJA+1")
   param_local$train$positivos <- c( "BAJA+2")
-  param_local$train$training <- c( 202101, 202102, 202103, 202104)
+  param_local$train$training <- c( 202101, 202102, 202103)
   param_local$train$validation <- c( 202105 )
   param_local$train$undersampling <- 0.2
   param_local$train$gan1 <- 117000
@@ -274,21 +274,21 @@ TS_strategy_base9 <- function( pinputexps )
   param_local$final_train$training <- c(
     202107, 202106, 202105, 202104, 202103, 202102, 202101, 
     202012, 202011, 202010, 202009, 202008, 202007, 202006,
-    202005, 202004, 202003, 202002, 202001,
+    202005, 202004, 202002, 202001,
     201912, 201911, 201910,
     201909, 201908
   )
 
 
-  param_local$train$training <- c(
-    202105, 202103, 202102, 202101, 
-    202012, 202011, 202010, 202009, 202008, 202007, 202006,
-    202005, 202004, 202003, 202002, 202001,
+  param_local$train$training <- c( 202106,
+    202105, 202104, 202103, 202102, 202101,
+    202012, 202011, 202009, 202008, 202007, 202006,
+    202005, 202004, 202002, 202001,
     201912, 201911, 201910,
     201909, 201908, 201907, 201906, 201905
     )
 
-  param_local$train$validation <- c(202106, 202104)
+  param_local$train$validation <- c(202101, 202011)
   param_local$train$testing <- c(202107)
 
 
@@ -357,9 +357,10 @@ HT_tuning_semillerio <- function( pinputexps, semillerio, bo_iteraciones, bypass
     
     extra_trees = FALSE,
     # Parte variable
-    learning_rate = c( 0.2, 1.2 ),
+    learning_rate = c( 0.1, 1.0 ),
     feature_fraction = c( 0.01, 0.9 ),
-    
+    num_leaves = c( 8L, 8196L, "integer"),
+    min_data_in_leaf = c( 5L, 50000L, "integer"),
     num_iterations_log = c(2, 8),  # directo a num_iterations 2^ 
     leaf_size_log = c( -11, -5),   # deriva en min_data_in_leaf
     coverage_log = c( -4, 0 )      # deriva en num_leaves
@@ -447,25 +448,25 @@ wf_SEMI_sep <- function( pnombrewf )
   param_local <- exp_wf_init( pnombrewf ) # linea fija
 
   DT_incorporar_dataset_competencia2024()
-  CA_catastrophe_base( metodo="MICE")
+  CA_catastrophe_base( metodo="Ninguno")
   FEintra_manual_base()
-  DR_drifting_base(metodo="rank_cero_fijo")
+  DR_drifting_base(metodo="rank_simple")
   FEhist_base()
   FErf_attributes_base()
-  CN_canaritos_asesinos_base(ratio=0.95, desvio=2.35)
+#  CN_canaritos_asesinos_base(ratio=0.95, desvio=2.35)
 
   ts9 <- TS_strategy_base9()
 
   # la Bayesian Optimization con el semillerio dentro
   ht <- HT_tuning_semillerio(
-    semillerio = 30, # semillerio dentro de la Bayesian Optim
-    bo_iteraciones = 40  # iteraciones inteligentes
+    semillerio = 50, # semillerio dentro de la Bayesian Optim
+    bo_iteraciones = 50  # iteraciones inteligentes
   )
 
   fm <- FM_final_models_lightgbm_semillerio( 
     c(ht, ts9), # los inputs
     ranks = c(1), # 1 = el mejor de la bayesian optimization
-    semillerio = 30,   # cantidad de semillas finales
+    semillerio = 60,   # cantidad de semillas finales
     repeticiones_exp = 1 )
   
   SC_scoring_semillerio( c(fm, ts9) )

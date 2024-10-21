@@ -150,16 +150,16 @@ FEhist_base <- function( pinputexps)
   param_local$Tendencias1$tendencia <- TRUE
   param_local$Tendencias1$minimo <- TRUE
   param_local$Tendencias1$maximo <- TRUE
-  param_local$Tendencias1$promedio <- FALSE
-  param_local$Tendencias1$ratioavg <- FALSE
-  param_local$Tendencias1$ratiomax <- FALSE
+  param_local$Tendencias1$promedio <- TRUE
+  param_local$Tendencias1$ratioavg <- TRUE
+  param_local$Tendencias1$ratiomax <- TRUE
 
   # no me engraso las manos con las tendencias de segundo orden
   param_local$Tendencias2$run <- TRUE
   param_local$Tendencias2$ventana <- 12
   param_local$Tendencias2$tendencia <- TRUE
-  param_local$Tendencias2$minimo <- FALSE
-  param_local$Tendencias2$maximo <- FALSE
+  param_local$Tendencias2$minimo <- TRUE
+  param_local$Tendencias2$maximo <- TRUE
   param_local$Tendencias2$promedio <- FALSE
   param_local$Tendencias2$ratioavg <- FALSE
   param_local$Tendencias2$ratiomax <- FALSE
@@ -187,8 +187,8 @@ FErf_attributes_base <- function( pinputexps, ratio, desvio)
   # parametros para que LightGBM se comporte como Random Forest
   param_local$lgb_param <- list(
     # parametros que se pueden cambiar
-    num_iterations = 30,
-    num_leaves  = 8,
+    num_iterations = 70,
+    num_leaves  = 10,
     min_data_in_leaf = 1000,
     feature_fraction_bynode  = 0.2,
 
@@ -274,21 +274,21 @@ TS_strategy_base9 <- function( pinputexps )
   param_local$final_train$training <- c(
     202107, 202106, 202105, 202104, 202103, 202102, 202101, 
     202012, 202011, 202010, 202009, 202008, 202007, 202006,
-    202005, 202004, 202003, 202002, 202001,
+    202005, 202004, 202002, 202001,
     201912, 201911, 201910,
     201909, 201908
   )
 
 
   param_local$train$training <- c(
-    202105, 202103, 202102, 202101, 
+    202105, 202104, 202103, 202102, 
     202012, 202011, 202010, 202009, 202008, 202007, 202006,
-    202005, 202004, 202003, 202002, 202001,
+    202005, 202004, 202002, 202001,
     201912, 201911, 201910,
     201909, 201908, 201907, 201906, 201905
     )
 
-  param_local$train$validation <- c(202106, 202104)
+  param_local$train$validation <- c(202106, 202101)
   param_local$train$testing <- c(202107)
 
 
@@ -357,9 +357,10 @@ HT_tuning_semillerio <- function( pinputexps, semillerio, bo_iteraciones, bypass
     
     extra_trees = FALSE,
     # Parte variable
-    learning_rate = c( 0.2, 1.2 ),
+    learning_rate = c( 0.1, 1.0 ),
     feature_fraction = c( 0.01, 0.9 ),
-    
+    num_leaves = c( 8L, 8196L, "integer"),
+    min_data_in_leaf = c( 5L, 50000L, "integer"),
     num_iterations_log = c(2, 8),  # directo a num_iterations 2^ 
     leaf_size_log = c( -11, -5),   # deriva en min_data_in_leaf
     coverage_log = c( -4, 0 )      # deriva en num_leaves
@@ -458,14 +459,14 @@ wf_SEMI_sep <- function( pnombrewf )
 
   # la Bayesian Optimization con el semillerio dentro
   ht <- HT_tuning_semillerio(
-    semillerio = 30, # semillerio dentro de la Bayesian Optim
-    bo_iteraciones = 40  # iteraciones inteligentes
+    semillerio = 50, # semillerio dentro de la Bayesian Optim
+    bo_iteraciones = 50  # iteraciones inteligentes
   )
 
   fm <- FM_final_models_lightgbm_semillerio( 
     c(ht, ts9), # los inputs
-    ranks = c(1), # 1 = el mejor de la bayesian optimization
-    semillerio = 30,   # cantidad de semillas finales
+    ranks = c(2, 3, 4), # 1 = el mejor de la bayesian optimization
+    semillerio = 100,   # cantidad de semillas finales
     repeticiones_exp = 1 )
   
   SC_scoring_semillerio( c(fm, ts9) )
